@@ -1,0 +1,13 @@
+  GNU nano 7.2                                        /etc/systemd/system/flask.service                                                  
+[Unit]
+Description=autorun_flask
+Wants = network-online.target
+
+[Service]
+WorkingDirectory=/home/pi/sunisa/
+Restart=always
+ExecStart=/bin/zsh run.sh
+User=pi
+
+[Install]
+WantedBy=default.target
