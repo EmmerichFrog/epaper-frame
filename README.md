@@ -20,10 +20,11 @@ Python implementation of the Floyd-Steinberg dithering algorithm are too slow, e
 It could have been optimized maybe, but the difference is huge and it was out of scope of this project.
 
 ## Screenshots
-<img src="https://github.com/user-attachments/assets/956c780e-ae93-4f72-9b42-fed2a85bb62f" height="256">
-<img src="https://github.com/user-attachments/assets/44d83462-dfe8-4806-83a5-dba8a1a62017" height="256">
-<img src="https://github.com/user-attachments/assets/2c82e363-0888-4645-9ca5-8d902432126c" height="256">
-
+<p align="center" width="100%">
+  <img src="https://github.com/user-attachments/assets/956c780e-ae93-4f72-9b42-fed2a85bb62f" height="256">
+  <img src="https://github.com/user-attachments/assets/44d83462-dfe8-4806-83a5-dba8a1a62017" height="256">
+  <img src="https://github.com/user-attachments/assets/2c82e363-0888-4645-9ca5-8d902432126c" height="256">
+</p>
 ## Usage
 Install the requirements and run app.py. The code should was only tested on a Pi Zero 2 W, but should work on other models.
 By default, the webpage is running on 0.0.0.0:443 with ssl on. An example of a systemd service is included if autorun on boot is desired.
