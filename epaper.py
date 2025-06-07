@@ -18,17 +18,6 @@ class Panel:
             case "epd4in0e":
                 self.epd = epd4in0e.EPD()
 
-    def adj_colors(self, img: Image.Image) -> Image.Image:
-        match self.PANEL_TYPE:
-            case "epd7in3f":
-                return img
-
-            case "epd4in0e":
-                return img
-
-            case _:
-                raise Exception  # TBD
-
     def is_done(self) -> bool:
         return self.done
 
@@ -88,7 +77,7 @@ class Panel:
             # self.epd.clear()
             logging.info("init done")
             # read bmp file
-            logging.info(f"Read picture")
+            logging.info("Read picture")
             # Himage = Image.open(imgFile)
             self.epd.display(self.epd.getbuffer(imgFile))
             time.sleep(3)

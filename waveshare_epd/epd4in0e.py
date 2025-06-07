@@ -193,7 +193,7 @@ class EPD:
 
         # Convert the soruce image to the 7 colors, dithering if needed
         image_6color = image.convert("RGB").quantize(palette=pal_image)
-        image_6color.save("test.bmp")
+        ## image_6color.save("test.bmp")
 
         buf_6color = bytearray(image_6color.tobytes("raw"))
 

@@ -1,7 +1,9 @@
-import os, random
+import os
+import random
 import subprocess
-from time import perf_counter_ns, sleep
+from time import perf_counter_ns
 from typing import Literal
+from datetime import datetime
 
 from flask import (
     Flask,
@@ -34,7 +36,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(CONVERTED_FOLDER, exist_ok=True)
 
 # Allowed file extensions
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "heic"}
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "heic", "bmp"}
 
 
 def allowed_file(filename) -> bool:
@@ -52,14 +54,18 @@ def upload_file() -> tuple[Response, Literal[400]] | tuple[Response, Literal[200
         return jsonify({"Status": "error, no file part"}), 400
 
     file = request.files["file"]
-    if file.filename == "":
+    if file.filename == "" or file.filename is None:
         return jsonify({"Status": "Error, no selected file"}), 400
 
     if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)  # type: ignore
+        filename = secure_filename(
+            "img_" + datetime.now().strftime("%d%m%Y_%H%M%S") + os.path.splitext(file.filename)[1]
+        )
+
         file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
         file.save(file_path)
         return jsonify({"Status": "Done", "Name": filename}), 200
+
     return jsonify({"Status": "error, file type not allowed"}), 400
 
 
@@ -101,7 +107,7 @@ def convert() -> tuple[Response, Literal[200]] | tuple[Response, Literal[400]]:
 
 
 @app.route("/done", methods=["GET"])
-def image_set_done() -> tuple[Response, Literal[200]]:
+def image_set_done() -> tuple[Response, Literal[200]] | tuple[Response, Literal[210]]:
     if panel.is_done():
         return jsonify({"Status": "Done"}), 200
     else:
