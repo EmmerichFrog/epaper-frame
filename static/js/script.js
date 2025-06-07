@@ -15,12 +15,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const okBtn = document.getElementById("okBtn");
     const vertBtn = document.getElementById("vertBtn");
     const horBtn = document.getElementById("horBtn");
+
     const brUpBtn = document.getElementById("brUpBtn");
     const brDwBtn = document.getElementById("brDwBtn");
     const brResBtn = document.getElementById("brResBtn");
 
+    const satUpBtn = document.getElementById("satUpBtn");
+    const satDwBtn = document.getElementById("satDwBtn");
+    const satResBtn = document.getElementById("satResBtn");
+
     let cropper;
     let currBr = 100;
+    let currSat = 100;
+
     const sleep = ms => new Promise(r => setTimeout(r, ms));
 
     uploadBtn.addEventListener("click", () => {
@@ -28,6 +35,10 @@ document.addEventListener("DOMContentLoaded", () => {
         brUpBtn.style.display = "none";
         brDwBtn.style.display = "none";
         brResBtn.style.display = "none";
+
+        satUpBtn.style.display = "none";
+        satDwBtn.style.display = "none";
+        satResBtn.style.display = "none";
 
         uploadedImage.style.display = "none"
         uploadedImage.style.marginLeft = " ";
@@ -171,6 +182,44 @@ document.addEventListener("DOMContentLoaded", () => {
         startCropper();
     })
 
+    function changeSat() {
+        tempCanvas.width = oldCanvas.width;
+        tempCanvas.height = oldCanvas.height;
+
+        const oldCtx = tempCanvas.getContext('2d');
+        oldCtx.drawImage(oldCanvas, 0, 0, oldCanvas.width, oldCanvas.height);
+
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.filter = "saturate(" + currSat + "%)";
+        tempCtx.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height);
+
+        const ctx = uploadedImage.getContext('2d');
+        ctx.drawImage(tempCanvas, 0, 0, uploadedImage.width, uploadedImage.height);
+        startCropper();
+    }
+
+    satUpBtn.addEventListener("click", () => {
+        currSat += 10;
+
+        changeSat()
+    })
+
+    satDwBtn.addEventListener("click", () => {
+        currSat -= 10;
+        if (currSat < 0) {
+            currSat = 0;
+        }
+
+        changeSat()
+    })
+
+    satResBtn.addEventListener("click", () => {
+        currSat = 100;
+        const ctx = uploadedImage.getContext('2d');
+        ctx.drawImage(oldCanvas, 0, 0, uploadedImage.width, uploadedImage.height);
+        startCropper();
+    })
+
 
     okBtn.addEventListener("click", () => {
         progressBar.style.display = "none"
@@ -187,9 +236,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         okBtn.style.display = "none";
+
         brUpBtn.style.display = "block";
         brDwBtn.style.display = "block";
         brResBtn.style.display = "block";
+
+        satUpBtn.style.display = "block";
+        satDwBtn.style.display = "block";
+        satResBtn.style.display = "block";
+
         cropBtn.style.display = "block";
         vertBtn.style.display = "block";
         horBtn.style.display = "block";
@@ -287,9 +342,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 uploadedImage.src = croppedImage;
 
                 okBtn.style.display = "none";
+
                 brUpBtn.style.display = "none";
                 brDwBtn.style.display = "none";
                 brResBtn.style.display = "none";
+
+                satUpBtn.style.display = "none";
+                satDwBtn.style.display = "none";
+                satResBtn.style.display = "none";
+
                 uploadBtn.style.display = "none";
                 cropBtn.style.display = "none";
                 horBtn.style.display = "none";
@@ -329,8 +390,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         await subscribe();
                     } else {
                         // Panel is done, show Popup
-                        let message = await response.text();
-                        alert(message);
+                        let message = JSON.parse(await response.text());
+                        alert(message.Status);
                         shutdownBtn.style.display = "block";
                         uploadBtn.style.display = "block";
                     }
