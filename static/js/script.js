@@ -105,35 +105,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
     });
 
+    function calculateAspectRatio(width, height) {
+        let landscape;
+        let portrait;
+        switch (panel) {
+            case 'epd7in3f':
+                landscape = 800 / 480;
+                portrait = 480 / 800;
+                break;
+
+            case 'epd4in0e':
+                landscape = 600 / 400;
+                portrait = 400 / 600;
+                break;
+
+        }
+        if (width > height) {
+            return landscape;
+        } else if (height > width) {
+            return portrait;
+        } else {
+            return 1; // Square
+        }
+    }
 
     async function startCropper() {
         await sleep(50);
 
         const aspectRatio = calculateAspectRatio(uploadedImage.width, uploadedImage.height);
-
-        function calculateAspectRatio(width, height) {
-            let landscape;
-            let portrait;
-            switch (panel) {
-                case 'epd7in3f':
-                    landscape = 800 / 480;
-                    portrait = 480 / 800;
-                    break;
-
-                case 'epd4in0e':
-                    landscape = 600 / 400;
-                    portrait = 400 / 600;
-                    break;
-
-            }
-            if (width > height) {
-                return landscape;
-            } else if (height > width) {
-                return portrait;
-            } else {
-                return 1; // Square
-            }
-        }
 
         if (cropper) { cropper.destroy() };
         cropper = new Cropper(uploadedImage, {
@@ -304,9 +303,11 @@ document.addEventListener("DOMContentLoaded", () => {
     })
 
     vertBtn.addEventListener("click", () => {
+        const aspectRatio = calculateAspectRatio(uploadedImage.height, uploadedImage.width);
+
         if (cropper) { cropper.destroy() };
         cropper = new Cropper(uploadedImage, {
-            aspectRatio: 3 / 5,
+            aspectRatio: aspectRatio,
             viewMode: 1,
             zoomable: true,
             zoomOnWheel: false
@@ -315,14 +316,15 @@ document.addEventListener("DOMContentLoaded", () => {
     })
 
     horBtn.addEventListener("click", () => {
+        const aspectRatio = calculateAspectRatio(uploadedImage.width, uploadedImage.height);
+
         if (cropper) { cropper.destroy() };
         cropper = new Cropper(uploadedImage, {
-            aspectRatio: 5 / 3,
+            aspectRatio: aspectRatio,
             viewMode: 1,
             zoomable: true,
             zoomOnWheel: false
         });
-
     })
 
 
