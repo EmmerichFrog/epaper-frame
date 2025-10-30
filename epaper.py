@@ -80,7 +80,7 @@ class Panel:
             logging.info("Read picture")
             # Himage = Image.open(imgFile)
             self.epd.display(self.epd.getbuffer(imgFile))
-            time.sleep(3)
+            time.sleep(1)
 
             logging.info("Success. Sleeping...")
             self.epd.sleep()
