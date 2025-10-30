@@ -97,12 +97,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     });
 
-    shutdownBtn.addEventListener("click", () => {
+    shutdownBtn.addEventListener("click", async () => {
         header.innerText = "Shutting down"
-        const xhr = new XMLHttpRequest();
-        xhr.open("get", "/shutdown", true);
-        xhr.send();
-
+        await fetch("/shutdown")
     });
 
     function calculateAspectRatio(width, height) {
@@ -329,14 +326,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-    cropBtn.addEventListener("click", () => {
+    cropBtn.addEventListener("click", async () => {
         header.innerText = "Setting New Picture..."
         const croppedCanvas = cropper.getCroppedCanvas();
         cropper.destroy();
         if (croppedCanvas) {
             croppedCanvas.toBlob(sendData, "image/png");
 
-            function sendData(blob) {
+            async function sendData(blob) {
                 const croppedImage = blob;
                 uploadedImage.style.width = "75%";
                 uploadedImage.style.marginLeft = " auto";
@@ -362,15 +359,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 const formData = new FormData();
                 formData.append("cropped_image_data", croppedImage, 'cropped_image_data');
 
-                const xhr = new XMLHttpRequest();
-                xhr.open("POST", `/converted`, true);
-                xhr.send(formData);
+                await fetch("/converted", {
+                    method: "POST",
+                    body: formData,
+                });
 
-                subscribe();
+                await subscribe();
 
                 async function subscribe() {
                     await new Promise(resolve => setTimeout(resolve, 2000));
-                    let response = await fetch("/done");
+                    const response = await fetch("/done");
 
                     if (response.status == 502) {
                         // Status 502 is a connection timeout error,
