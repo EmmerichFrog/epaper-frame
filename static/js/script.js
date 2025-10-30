@@ -29,8 +29,26 @@ document.addEventListener("DOMContentLoaded", () => {
     let currSat = 100;
 
     const sleep = ms => new Promise(r => setTimeout(r, ms));
+    async function redraw(img, cropper) {
+        while (!img.complete) {
+            await sleep(100);
+        }
+        await sleep(100);
+        uploadedImage.width = img.naturalWidth;
+        uploadedImage.height = img.naturalHeight;
+        oldCanvas.width = img.naturalWidth;
+        oldCanvas.height = img.naturalHeight;
+        const oldCtx = oldCanvas.getContext('2d');
+        oldCtx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
 
-    uploadBtn.addEventListener("click", () => {
+        const ctx = uploadedImage.getContext('2d');
+        ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
+        if (cropper) {
+            await startCropper();
+        }
+    }
+
+    uploadBtn.addEventListener("click", async () => {
         currBr = 100;
         brUpBtn.style.display = "none";
         brDwBtn.style.display = "none";
@@ -79,11 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
             await sleep(100);
 
             uploadedImage.style.display = "block";
-            uploadedImage.width = img.naturalWidth;
-            uploadedImage.height = img.naturalHeight;
-
-            const ctx = uploadedImage.getContext('2d');
-            ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
+            await redraw(img, false);
             headerImg.style.display = "none";
             imageContainer.style.display = "grid";
             header.innerText = "Confirm or Upload New"
@@ -140,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    function changeBr() {
+    async function changeBr() {
         tempCanvas.width = oldCanvas.width;
         tempCanvas.height = oldCanvas.height;
 
@@ -153,32 +167,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const ctx = uploadedImage.getContext('2d');
         ctx.drawImage(tempCanvas, 0, 0, uploadedImage.width, uploadedImage.height);
-        startCropper();
+        await startCropper();
     }
 
-    brUpBtn.addEventListener("click", () => {
+    brUpBtn.addEventListener("click", async () => {
         currBr += 10;
 
-        changeBr()
+        await changeBr()
     })
 
-    brDwBtn.addEventListener("click", () => {
+    brDwBtn.addEventListener("click", async () => {
         currBr -= 10;
         if (currBr < 0) {
             currBr = 0;
         }
 
-        changeBr()
+        await changeBr()
     })
 
-    brResBtn.addEventListener("click", () => {
+    brResBtn.addEventListener("click", async () => {
         currBr = 100;
         const ctx = uploadedImage.getContext('2d');
         ctx.drawImage(oldCanvas, 0, 0, uploadedImage.width, uploadedImage.height);
-        startCropper();
+
+        await startCropper();
     })
 
-    function changeSat() {
+    async function changeSat() {
         tempCanvas.width = oldCanvas.width;
         tempCanvas.height = oldCanvas.height;
 
@@ -191,33 +206,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const ctx = uploadedImage.getContext('2d');
         ctx.drawImage(tempCanvas, 0, 0, uploadedImage.width, uploadedImage.height);
-        startCropper();
+
+        await startCropper();
     }
 
-    satUpBtn.addEventListener("click", () => {
+    satUpBtn.addEventListener("click", async () => {
         currSat += 10;
 
-        changeSat()
+        await changeSat()
     })
 
-    satDwBtn.addEventListener("click", () => {
+    satDwBtn.addEventListener("click", async () => {
         currSat -= 10;
         if (currSat < 0) {
             currSat = 0;
         }
 
-        changeSat()
+        await changeSat()
     })
 
-    satResBtn.addEventListener("click", () => {
+    satResBtn.addEventListener("click", async () => {
         currSat = 100;
         const ctx = uploadedImage.getContext('2d');
         ctx.drawImage(oldCanvas, 0, 0, uploadedImage.width, uploadedImage.height);
-        startCropper();
+
+        await startCropper();
     })
 
 
-    okBtn.addEventListener("click", () => {
+    okBtn.addEventListener("click", async () => {
         progressBar.style.display = "none"
         header.innerText = "Crop and Confirm"
         const MAX_WIDTH = 800;
@@ -228,8 +245,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const img = new Image();
         img.src = resizedCanvas.toDataURL("image/png");
 
-        redraw(img);
-
+        await redraw(img, true);
 
         okBtn.style.display = "none";
 
@@ -275,28 +291,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             return resizedCanvas;
         };
-
-        function redraw(img) {
-            waitForData(img);
-            async function waitForData(img) {
-                while (!img.complete) {
-                    await sleep(100);
-                }
-                await sleep(100);
-                uploadedImage.width = img.naturalWidth;
-                uploadedImage.height = img.naturalHeight;
-                oldCanvas.width = img.naturalWidth;
-                oldCanvas.height = img.naturalHeight;
-                const oldCtx = oldCanvas.getContext('2d');
-                oldCtx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
-
-                const ctx = uploadedImage.getContext('2d');
-                ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
-
-                startCropper();
-
-            }
-        }
     })
 
     vertBtn.addEventListener("click", () => {
@@ -334,11 +328,14 @@ document.addEventListener("DOMContentLoaded", () => {
             croppedCanvas.toBlob(sendData, "image/png");
 
             async function sendData(blob) {
-                const croppedImage = blob;
                 uploadedImage.style.width = "75%";
                 uploadedImage.style.marginLeft = " auto";
                 uploadedImage.style.marginRight = " auto";
-                uploadedImage.src = croppedImage;
+                uploadedImage.src = blob;
+
+                const img = new Image();
+                img.src = URL.createObjectURL(blob);
+                await redraw(img, false);
 
                 okBtn.style.display = "none";
 
@@ -357,7 +354,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 shutdownBtn.style.display = "none";
 
                 const formData = new FormData();
-                formData.append("cropped_image_data", croppedImage, 'cropped_image_data');
+                formData.append("cropped_image_data", blob, 'cropped_image_data');
 
                 await fetch("/converted", {
                     method: "POST",
