@@ -8,13 +8,13 @@ from datetime import datetime
 from flask import (
     Flask,
     jsonify,
-    render_template,
+    redirect,
     request,
     send_from_directory,
 )
-from flask.wrappers import Response
 from werkzeug import Request
 from werkzeug.utils import secure_filename
+from werkzeug.wrappers.response import Response
 
 from epaper import Panel
 from PIL import Image
@@ -43,9 +43,17 @@ def allowed_file(filename) -> bool:
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+@app.route("/<path:path>")
+def static_proxy(path) -> Response:
+    file_path = os.path.join(app.static_folder, path)  # type: ignore
+    if os.path.isfile(file_path):
+        return send_from_directory(app.static_folder, path)  # type: ignore
+    return send_from_directory(app.static_folder, "index.html")  # type: ignore
+
+
 @app.route("/")
-def index() -> str:
-    return render_template("index.html", panel=panel.PANEL_TYPE)
+def index() -> Response:
+    return redirect("index.html")
 
 
 @app.route("/upload", methods=["POST"])
