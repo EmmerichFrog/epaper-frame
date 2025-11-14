@@ -23,9 +23,7 @@ The html frontend was moved to https://github.com/EmmerichFrog/ImageEditor
 
 ## Screenshots
 <p align="center" width="100%">
-  <img src="https://github.com/user-attachments/assets/2c82e363-0888-4645-9ca5-8d902432126c" height="256">
-  <img src="https://github.com/user-attachments/assets/44d83462-dfe8-4806-83a5-dba8a1a62017" height="256">
-  <img src="https://github.com/user-attachments/assets/956c780e-ae93-4f72-9b42-fed2a85bb62f" height="256">
+  <img height="512" alt="image" src="https://github.com/user-attachments/assets/e05203c4-fd4a-4ad2-b04f-06188c56e08a" />
 </p>
 
 ## Usage
